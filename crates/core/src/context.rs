@@ -187,13 +187,16 @@ impl PySessionConfig {
         Self::from(self.config.clone().set_str(key, value))
     }
 
-    pub fn with_extension(&self, extension: Bound<PyAny>) -> PyResult<Self> {
+    fn with_extension(&self, extension: Bound<PyAny>) -> PyResult<Self> {
         let capsule = extension.call_method0("__datafusion_extension_options__")?;
-        let capsule = capsule.downcast::<PyCapsule>().map_err(py_datafusion_err)?;
+        let capsule = capsule.cast::<PyCapsule>().map_err(py_datafusion_err)?;
 
         validate_pycapsule(capsule, "datafusion_extension_options")?;
 
-        let mut extension = unsafe { capsule.reference::<FFI_ExtensionOptions>() }.clone();
+        let data: NonNull<FFI_ExtensionOptions> = capsule
+            .pointer_checked(Some(c_str!("datafusion_extension_options")))?
+            .cast();
+        let mut extension = unsafe { data.as_ref().clone() };
 
         let mut config = self.config.clone();
         let options = config.options_mut();
