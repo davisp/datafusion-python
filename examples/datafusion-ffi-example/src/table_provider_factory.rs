@@ -44,8 +44,6 @@ impl TableProviderFactory for ExampleTableProviderFactory {
         _state: &dyn Session,
         cmd: &CreateExternalTable,
     ) -> DataFusionResult<Arc<dyn TableProvider>> {
-        eprintln!("OPTIONS: {:#?}", cmd.options);
-        let val = cmd.options.get("my_format.some_option");
         if val != Some(&"42".to_owned()) {
             return Err(DataFusionError::Internal(format!(
                 "Expected '42', got '{val:?}'"
