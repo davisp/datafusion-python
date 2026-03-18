@@ -19,7 +19,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use datafusion_catalog::{Session, TableProvider, TableProviderFactory};
-use datafusion_common::error::Result as DataFusionResult;
+use datafusion_common::error::{DataFusionError, Result as DataFusionResult};
 use datafusion_expr::CreateExternalTable;
 use datafusion_ffi::table_provider_factory::FFI_TableProviderFactory;
 use datafusion_python_util::ffi_logical_codec_from_pycapsule;
@@ -42,8 +42,15 @@ impl TableProviderFactory for ExampleTableProviderFactory {
     async fn create(
         &self,
         _state: &dyn Session,
-        _cmd: &CreateExternalTable,
+        cmd: &CreateExternalTable,
     ) -> DataFusionResult<Arc<dyn TableProvider>> {
+        eprintln!("OPTIONS: {:#?}", cmd.options);
+        let val = cmd.options.get("my_format.some_option");
+        if val != Some(&"42".to_owned()) {
+            return Err(DataFusionError::Internal(format!(
+                "Expected '42', got '{val:?}'"
+            )));
+        }
         Ok(catalog_provider::my_table())
     }
 }

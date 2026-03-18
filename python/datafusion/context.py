@@ -852,6 +852,12 @@ class SessionContext:
         """
         self.ctx.register_table_factory(format, factory)
 
+    def register_table_options(
+        self,
+        factory: Any,
+    ) -> None:
+        self.ctx.register_table_options(factory)
+
     def catalog_names(self) -> set[str]:
         """Returns the list of catalogs in this context."""
         return self.ctx.catalog_names()

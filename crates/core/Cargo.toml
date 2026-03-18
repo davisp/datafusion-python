@@ -25,31 +25,32 @@ description.workspace = true
 homepage.workspace = true
 repository.workspace = true
 include = [
-  "src",
-  "../LICENSE.txt",
-  "build.rs",
-  "../pyproject.toml",
-  "Cargo.toml",
-  "../Cargo.lock",
+    "src",
+    "../LICENSE.txt",
+    "build.rs",
+    "../pyproject.toml",
+    "Cargo.toml",
+    "../Cargo.lock",
 ]
 
 [dependencies]
 tokio = { workspace = true, features = [
-  "macros",
-  "rt",
-  "rt-multi-thread",
-  "sync",
+    "macros",
+    "rt",
+    "rt-multi-thread",
+    "sync",
 ] }
 pyo3 = { workspace = true, features = [
-  "extension-module",
-  "abi3",
-  "abi3-py310",
+    "extension-module",
+    "abi3",
+    "abi3-py310",
 ] }
 pyo3-async-runtimes = { workspace = true, features = ["tokio-runtime"] }
 pyo3-log = { workspace = true }
 arrow = { workspace = true, features = ["pyarrow"] }
 arrow-select = { workspace = true }
 datafusion = { workspace = true, features = ["avro", "unicode_expressions"] }
+datafusion-common = { workspace = true }
 datafusion-substrait = { workspace = true, optional = true }
 datafusion-proto = { workspace = true }
 datafusion-ffi = { workspace = true }
@@ -57,7 +58,7 @@ prost = { workspace = true } # keep in line with `datafusion-substrait`
 serde_json = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 mimalloc = { workspace = true, optional = true, features = [
-  "local_dynamic_tls",
+    "local_dynamic_tls",
 ] }
 async-trait = { workspace = true }
 futures = { workspace = true }

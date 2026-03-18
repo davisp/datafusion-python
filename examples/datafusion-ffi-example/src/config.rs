@@ -10,7 +10,12 @@ use pyo3::types::PyCapsule;
 use pyo3::{Bound, PyResult, Python, pyclass, pymethods};
 
 /// My own config options.
-#[pyclass(name = "MyConfig", module = "datafusion_ffi_example", subclass)]
+#[pyclass(
+    from_py_object,
+    name = "MyConfig",
+    module = "datafusion_ffi_example",
+    subclass
+)]
 #[derive(Clone, Debug)]
 pub struct MyConfig {
     /// Should "foo" be replaced by "bar"?
@@ -106,6 +111,93 @@ impl ConfigField for MyConfig {
             "baz_count" => self.baz_count.set(rem, value.as_ref()),
 
             _ => config_err!("Config value \"{}\" not found on MyConfig", key),
+        }
+    }
+}
+
+/// My own table options.
+#[pyclass(
+    from_py_object,
+    name = "MyTableOptions",
+    module = "datafusion_ffi_example",
+    subclass
+)]
+#[derive(Clone, Debug)]
+pub struct MyTableOptions {
+    /// A random option name for testing
+    pub some_option: usize,
+}
+
+#[pymethods]
+impl MyTableOptions {
+    #[new]
+    fn new() -> Self {
+        Self::default()
+    }
+
+    fn __datafusion_extension_options__<'py>(
+        &self,
+        py: Python<'py>,
+    ) -> PyResult<Bound<'py, PyCapsule>> {
+        let name = cr"datafusion_extension_options".into();
+
+        let mut config = FFI_ExtensionOptions::default();
+        config
+            .add_config(self)
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+
+        PyCapsule::new(py, config, Some(name))
+    }
+}
+
+impl Default for MyTableOptions {
+    fn default() -> Self {
+        Self { some_option: 1337 }
+    }
+}
+
+impl ConfigExtension for MyTableOptions {
+    const PREFIX: &'static str = "my_format";
+}
+
+impl ExtensionOptions for MyTableOptions {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+
+    fn cloned(&self) -> Box<dyn ExtensionOptions> {
+        Box::new(self.clone())
+    }
+
+    fn set(&mut self, key: &str, value: &str) -> datafusion_common::Result<()> {
+        datafusion_common::config::ConfigField::set(self, key, value)
+    }
+
+    fn entries(&self) -> Vec<ConfigEntry> {
+        vec![ConfigEntry {
+            key: "some_option".to_owned(),
+            value: Some(format!("{}", self.some_option)),
+            description: "some description",
+        }]
+    }
+}
+
+impl ConfigField for MyTableOptions {
+    fn visit<V: Visit>(&self, v: &mut V, _key: &str, _description: &'static str) {
+        let key = "some_option";
+        let desc = "some description";
+        self.some_option.visit(v, key, desc);
+    }
+
+    fn set(&mut self, key: &str, value: &str) -> Result<(), DataFusionError> {
+        let (key, rem) = key.split_once('.').unwrap_or((key, ""));
+        match key {
+            "some_option" => self.some_option.set(rem, value.as_ref()),
+            _ => config_err!("Config value \"{}\" not found on MyTableOptions", key),
         }
     }
 }

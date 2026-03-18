@@ -19,7 +19,7 @@ use pyo3::prelude::*;
 
 use crate::aggregate_udf::MySumUDF;
 use crate::catalog_provider::{FixedSchemaProvider, MyCatalogProvider, MyCatalogProviderList};
-use crate::config::MyConfig;
+use crate::config::{MyConfig, MyTableOptions};
 use crate::scalar_udf::IsNullUDF;
 use crate::table_function::MyTableFunction;
 use crate::table_provider::MyTableProvider;
@@ -49,5 +49,6 @@ fn datafusion_ffi_example(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MySumUDF>()?;
     m.add_class::<MyRankUDF>()?;
     m.add_class::<MyConfig>()?;
+    m.add_class::<MyTableOptions>()?;
     Ok(())
 }

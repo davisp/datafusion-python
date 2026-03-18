@@ -187,9 +187,11 @@ impl PySessionConfig {
         Self::from(self.config.clone().set_str(key, value))
     }
 
-    fn with_extension(&self, extension: Bound<PyAny>) -> PyResult<Self> {
-        let capsule = extension.call_method0("__datafusion_extension_options__")?;
-        let capsule = capsule.cast::<PyCapsule>().map_err(py_datafusion_err)?;
+    fn with_extension(&self, mut extension: Bound<PyAny>) -> PyResult<Self> {
+        if extension.hasattr("__datafusion_extension_options__")? {
+            extension = extension.call_method0("__datafusion_extension_options__")?;
+        }
+        let capsule = extension.cast::<PyCapsule>().map_err(py_datafusion_err)?;
 
         validate_pycapsule(capsule, "datafusion_extension_options")?;
 
@@ -718,6 +720,44 @@ impl PySessionContext {
         let mut lock = st.write();
         lock.table_factories_mut()
             .insert(format.to_owned(), factory);
+
+        Ok(())
+    }
+
+    pub fn register_table_options(
+        &self,
+        mut extension: Bound<'_, PyAny>,
+    ) -> PyDataFusionResult<()> {
+        if extension.hasattr("__datafusion_extension_options__")? {
+            extension = extension.call_method0("__datafusion_extension_options__")?;
+        }
+
+        let capsule = extension.cast::<PyCapsule>().map_err(py_datafusion_err)?;
+        validate_pycapsule(capsule, "datafusion_extension_options")?;
+
+        let data: NonNull<FFI_ExtensionOptions> = capsule
+            .pointer_checked(Some(c_str!("datafusion_extension_options")))?
+            .cast();
+        let mut extension: FFI_ExtensionOptions = unsafe { data.as_ref().clone() };
+
+        let st = self.ctx.state_ref();
+        let mut lock = st.write();
+
+        if let Some(prior_extension) = lock
+            .table_options()
+            .extensions
+            .get::<FFI_ExtensionOptions>()
+        {
+            extension
+                .merge(prior_extension)
+                .map_err(py_datafusion_err)?;
+        }
+
+        lock.table_options_mut().extensions.insert(extension);
+
+        for (key, _) in lock.table_options().extensions.iter() {
+            eprintln!("{key:?}");
+        }
 
         Ok(())
     }

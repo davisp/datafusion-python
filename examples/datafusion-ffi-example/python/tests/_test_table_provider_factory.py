@@ -18,7 +18,7 @@
 from __future__ import annotations
 
 from datafusion import SessionContext
-from datafusion_ffi_example import MyTableProviderFactory
+from datafusion_ffi_example import MyTableProviderFactory, MyTableOptions
 
 
 def test_table_provider_factory_ffi() -> None:
@@ -26,13 +26,17 @@ def test_table_provider_factory_ffi() -> None:
     table = MyTableProviderFactory()
 
     ctx.register_table_factory("MY_FORMAT", table)
+    ctx.register_table_options(MyTableOptions())
 
     # Create a new external table
     ctx.sql("""
         CREATE EXTERNAL TABLE
         foo
         STORED AS my_format
-        LOCATION '';
+        LOCATION ''
+        OPTIONS (
+            'my_format.some_option' '42'
+        );
     """).collect()
 
     # Query the pre-populated table

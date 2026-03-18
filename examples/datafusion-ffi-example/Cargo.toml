@@ -39,9 +39,9 @@ arrow-schema = { workspace = true }
 async-trait = { workspace = true }
 datafusion-python-util.workspace = true
 pyo3 = { workspace = true, features = [
-  "extension-module",
-  "abi3",
-  "abi3-py310",
+    "extension-module",
+    "abi3",
+    "abi3-py310",
 ] }
 pyo3-log = { workspace = true }
 
@@ -53,9 +53,9 @@ name = "datafusion_ffi_example"
 crate-type = ["cdylib", "rlib"]
 
 [patch.crates-io]
-datafusion-catalog = { git = "https://github.com/timsaucer/datafusion", rev = "33ea91c5fa37aa0cfa787d58c6bf84ec4628db88" }
-datafusion-common = { git = "https://github.com/timsaucer/datafusion", rev = "33ea91c5fa37aa0cfa787d58c6bf84ec4628db88" }
-datafusion-functions-aggregate = { git = "https://github.com/timsaucer/datafusion", rev = "33ea91c5fa37aa0cfa787d58c6bf84ec4628db88" }
-datafusion-functions-window = { git = "https://github.com/timsaucer/datafusion", rev = "33ea91c5fa37aa0cfa787d58c6bf84ec4628db88" }
-datafusion-expr = { git = "https://github.com/timsaucer/datafusion", rev = "33ea91c5fa37aa0cfa787d58c6bf84ec4628db88" }
-datafusion-ffi = { git = "https://github.com/timsaucer/datafusion", rev = "33ea91c5fa37aa0cfa787d58c6bf84ec4628db88" }
+datafusion-catalog = { git = "https://github.com/davisp/datafusion", branch = "pd/test/ffi-config" }
+datafusion-common = { git = "https://github.com/davisp/datafusion", branch = "pd/test/ffi-config" }
+datafusion-functions-aggregate = { git = "https://github.com/davisp/datafusion", branch = "pd/test/ffi-config" }
+datafusion-functions-window = { git = "https://github.com/davisp/datafusion", branch = "pd/test/ffi-config" }
+datafusion-expr = { git = "https://github.com/davisp/datafusion", branch = "pd/test/ffi-config" }
+datafusion-ffi = { git = "https://github.com/davisp/datafusion", branch = "pd/test/ffi-config" }
